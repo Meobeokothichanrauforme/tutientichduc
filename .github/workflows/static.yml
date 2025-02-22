@@ -1,0 +1,36 @@
+name: Deploy PHP System Info to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'
+
+      - name: Generate System Info
+        run: |
+          echo "<?php phpinfo(); ?>" > system_info.php
+          uname -a > system_version.txt
+
+      - name: Move System Info to Public Directory
+        run: |
+          mkdir -p public
+          mv system_info.php public/
+          mv system_version.txt public/
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
